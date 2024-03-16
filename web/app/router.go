@@ -32,7 +32,7 @@ func Register(env envconfig.Env, auth *authenticator.Authenticator) (*gin.Engine
 	router.GET("/api/auth/login", login.Handler(auth))
 	router.GET("/api/auth/callback", callback.Handler(auth))
 
-	router.GET("/api/user", middleware.IsAuthenticated, user.Handler)
+	router.GET("/user", middleware.IsAuthenticated, user.Handler)
 	router.GET("/logout", logout.Handler)
 
 	return router, nil
