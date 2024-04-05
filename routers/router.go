@@ -1,6 +1,8 @@
 package routers
 
 import (
+	"net/http"
+
 	"github.com/UCSD-Socially-Dead-Organization/tree-hole-backend/routers/middleware"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
@@ -22,7 +24,15 @@ func Routes() *gin.Engine {
 	router.Use(gin.Recovery())
 	router.Use(middleware.CORSMiddleware())
 
-	RegisterRoutes(router) //routes register
+	router.NoRoute(func(ctx *gin.Context) {
+		ctx.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "Route Not Found"})
+	})
+	router.GET("/health", func(ctx *gin.Context) { ctx.JSON(http.StatusOK, gin.H{"live": "ok"}) })
+
+	v1 := router.Group("/v1")
+	{
+		UsersRoutes(v1)
+	}
 
 	return router
 }
