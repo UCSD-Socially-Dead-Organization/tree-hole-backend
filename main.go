@@ -1,33 +1,32 @@
 package main
 
 import (
-	"log"
+	"time"
 
-	"github.com/treehole-backend/envconfig"
-
-	"github.com/treehole-backend/platform/authenticator"
-	restful "github.com/treehole-backend/web/app"
+	"github.com/UCSD-Socially-Dead-Organization/tree-hole-backend/config"
+	"github.com/UCSD-Socially-Dead-Organization/tree-hole-backend/infra/database"
+	"github.com/UCSD-Socially-Dead-Organization/tree-hole-backend/infra/logger"
+	"github.com/UCSD-Socially-Dead-Organization/tree-hole-backend/routers"
+	"github.com/spf13/viper"
 )
 
 func main() {
-	var err error
-	var env envconfig.Env
-	if err = envconfig.Init(&env); err != nil {
-		log.Fatal("- Failed to load config from environment variables ", err)
+	//set timezone
+	viper.SetDefault("SERVER_TIMEZONE", "Asia/Dhaka")
+	loc, _ := time.LoadLocation(viper.GetString("SERVER_TIMEZONE"))
+	time.Local = loc
+
+	if err := config.SetupConfig(); err != nil {
+		logger.Fatalf("config SetupConfig() error: %s", err)
 	}
-	auth, err := authenticator.New()
-	if err != nil {
-		log.Fatalf("- Failed to initialize the authenticator: %v", err)
-	}
-	r, err := restful.Register(env, auth)
-	if err != nil {
-		log.Fatal("- Failed to register routes ", err)
+	masterDSN, replicaDSN := config.DbConfiguration()
+
+	if err := database.DBConnection(masterDSN, replicaDSN); err != nil {
+		logger.Fatalf("database DbConnection error: %s", err)
 	}
 
-	log.Print("+ Starting server on port ", env.Port)
-	if err := r.Run(":" + env.Port); err != nil {
-		log.Fatal("- Failed to start server ", err)
-	}
+	router := routers.Routes()
 
-	// TODO - graceful shutdown 可以研究
+	logger.Fatalf("%v", router.Run(config.ServerConfig()))
+
 }

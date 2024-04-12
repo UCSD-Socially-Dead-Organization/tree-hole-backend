@@ -1,13 +1,24 @@
-include secrets.env
+help:
+	@echo ''
+	@echo 'Usage: make [TARGET] [EXTRA_ARGUMENTS]'
+	@echo 'Targets:'
+	@echo 'make dev: make dev for development work'
+	@echo 'make build: make build container'
+	@echo 'make production: docker production build'
+	@echo 'clean: clean for all clear docker images'
 
-.EXPORT_ALL_VARIABLES:
-AUTH0_CLIENT_ID ?= ${Auth0_Client_id}
-AUTH0_DOMAIN ?= ${Autho0_Domain}
-AUTH0_CLIENT_SECRET ?= ${Auth0_Client_secret}
-# this needs to be updated to the correct url
-AUTH0_CALLBACK_URL?=http://localhost:3000/api/auth/callback
+dev:
+	docker-compose -f docker-compose-dev.yml down
+	if [ ! -f .env ]; then cp .env.example .env; fi;
+	docker-compose -f docker-compose-dev.yml up
 
-SERVER_PORT ?= 3000
+build:
+	docker-compose -f docker-compose-prod.yml build
+	docker-compose -f docker-compose-dev.yml down build
 
-run:
-	go run main.go
+production:
+	docker-compose -f docker-compose-prod.yml up -d --build
+
+clean:
+	docker-compose -f docker-compose-prod.yml down -v
+	docker-compose -f docker-compose-dev.yml down -v
