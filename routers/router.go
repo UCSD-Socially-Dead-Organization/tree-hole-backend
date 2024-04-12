@@ -3,12 +3,13 @@ package routers
 import (
 	"net/http"
 
+	config "github.com/UCSD-Socially-Dead-Organization/tree-hole-backend/config"
 	"github.com/UCSD-Socially-Dead-Organization/tree-hole-backend/routers/middleware"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
 )
 
-func Routes() *gin.Engine {
+func Routes(conf *config.Configuration) *gin.Engine {
 
 	environment := viper.GetBool("DEBUG")
 	if environment {

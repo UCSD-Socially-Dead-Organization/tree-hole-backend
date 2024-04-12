@@ -3,7 +3,7 @@ package main
 import (
 	"time"
 
-	"github.com/UCSD-Socially-Dead-Organization/tree-hole-backend/config"
+	env "github.com/UCSD-Socially-Dead-Organization/tree-hole-backend/config"
 	"github.com/UCSD-Socially-Dead-Organization/tree-hole-backend/infra/database"
 	"github.com/UCSD-Socially-Dead-Organization/tree-hole-backend/infra/logger"
 	"github.com/UCSD-Socially-Dead-Organization/tree-hole-backend/routers"
@@ -12,21 +12,22 @@ import (
 
 func main() {
 	//set timezone
-	viper.SetDefault("SERVER_TIMEZONE", "Asia/Dhaka")
+	viper.SetDefault("SERVER_TIMEZONE", "Asia/Taipei")
 	loc, _ := time.LoadLocation(viper.GetString("SERVER_TIMEZONE"))
 	time.Local = loc
 
-	if err := config.SetupConfig(); err != nil {
+	var err error
+	var conf *env.Configuration
+
+	// SetupConfig() will read the .env file and setup ALL the environment variables
+	if conf, err = env.SetupConfig(); err != nil {
 		logger.Fatalf("config SetupConfig() error: %s", err)
 	}
-	masterDSN, replicaDSN := config.DbConfiguration()
 
-	if err := database.DBConnection(masterDSN, replicaDSN); err != nil {
+	if err := database.DBConnection(conf.Database.GetDSN()); err != nil {
 		logger.Fatalf("database DbConnection error: %s", err)
 	}
 
-	router := routers.Routes()
-
-	logger.Fatalf("%v", router.Run(config.ServerConfig()))
-
+	router := routers.Routes(conf)
+	logger.Fatalf("%v", router.Run(conf.Server.GenerateServerAddress()))
 }

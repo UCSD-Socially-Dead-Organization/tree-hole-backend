@@ -7,6 +7,11 @@ help:
 	@echo 'make production: docker production build'
 	@echo 'clean: clean for all clear docker images'
 
+init:
+	@ echo "Copy the .env.example. to the real .env file..."
+	@ cp .env.example .env
+	@ echo "Configuration done!"
+
 dev:
 	docker-compose -f docker-compose-dev.yml down
 	if [ ! -f .env ]; then cp .env.example .env; fi;
