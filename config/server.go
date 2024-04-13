@@ -8,8 +8,8 @@ type ServerConfiguration struct {
 	Port  string `mapstructure:"SERVER_PORT"`
 	Host  string `mapstructure:"SERVER_HOST"`
 	Debug bool   `mapstructure:"DEBUG"`
-	// Secret string `mapsctructure:SECRET`"
-	// Allowed_Hosts []string `mapstructure:"ALLOWED_HOSTS"`
+	// Secret string `mapsctructure:SECRET`" TODO: Add secret key
+	Allowed_Hosts string `mapstructure:"ALLOWED_HOSTS"`
 }
 
 func (s *ServerConfiguration) GenerateServerAddress() string {

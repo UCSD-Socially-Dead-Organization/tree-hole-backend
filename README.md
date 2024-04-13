@@ -13,3 +13,5 @@ make clean
 0.0.0.0:8001
 
 ```
+
+# How to test

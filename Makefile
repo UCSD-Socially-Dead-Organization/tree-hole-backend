@@ -1,3 +1,5 @@
+# TODO This make file is super slow. Need to optimize it.
+
 help:
 	@echo ''
 	@echo 'Usage: make [TARGET] [EXTRA_ARGUMENTS]'
@@ -19,11 +21,12 @@ dev:
 
 build:
 	docker-compose -f docker-compose-prod.yml build
-	docker-compose -f docker-compose-dev.yml down build
+	docker-compose -f docker-compose-dev.yml build
 
 production:
 	docker-compose -f docker-compose-prod.yml up -d --build
 
-clean:
+stop:
 	docker-compose -f docker-compose-prod.yml down -v
 	docker-compose -f docker-compose-dev.yml down -v
+

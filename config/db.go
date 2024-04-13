@@ -14,6 +14,7 @@ type DatabaseConfiguration struct {
 	sslMode  string `mapstructure:"SSL_MODE"`
 }
 
+// GetDSN returns the Data Source Name for the database connection. Currently, it is using PostgreSQL, if we have more than one DB then the name should change.
 func (d *DatabaseConfiguration) GetDSN() string {
 	return fmt.Sprintf(
 		"host=%s user=%s password=%s dbname=%s port=%s sslmode=%s",

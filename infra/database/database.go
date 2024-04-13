@@ -1,66 +1,46 @@
 package database
 
 import (
-	"github.com/spf13/viper"
+	"log"
+
+	env "github.com/UCSD-Socially-Dead-Organization/tree-hole-backend/config"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
-	"gorm.io/plugin/dbresolver"
-	"log"
 )
 
-var (
-	DB    *gorm.DB
-	err   error
-	DBErr error
-)
+type GormDatabase struct {
+	DB *gorm.DB
+}
 
-// DBConnection create database connection
-func DBConnection(masterDSN, replicaDSN string) error {
-	var db = DB
-
-	logMode := viper.GetBool("DB_LOG_MODE")
-	debug := viper.GetBool("DEBUG")
+func DBConnection(masterDSN string, conf *env.Configuration) (*GormDatabase, error) {
+	var db *gorm.DB
+	var err error
+	is_logMode := conf.DB.LogMode
+	// TODO: Might need to add a debug flag
+	// is_debug := viper.GetBool("DEBUG")
 
 	loglevel := logger.Silent
-	if logMode {
+	if is_logMode {
 		loglevel = logger.Info
 	}
 
 	db, err = gorm.Open(postgres.Open(masterDSN), &gorm.Config{
 		Logger: logger.Default.LogMode(loglevel),
 	})
-	if !debug {
-		db.Use(dbresolver.Register(dbresolver.Config{
-			Replicas: []gorm.Dialector{
-				postgres.Open(replicaDSN),
-			},
-			Policy: dbresolver.RandomPolicy{},
-		}))
-	}
+	// TODO: Might need to handle replica
+	// if !debug {
+	// 	db.Use(dbresolver.Register(dbresolver.Config{
+	// 		Replicas: []gorm.Dialector{
+	// 			postgres.Open(replicaDSN),
+	// 		},
+	// 		Policy: dbresolver.RandomPolicy{},
+	// 	}))
+	// }
 
 	if err != nil {
-		DBErr = err
 		log.Println("Db connection error")
-		return err
+		return nil, err
 	}
-
-	err = db.AutoMigrate(migrationModels...)
-
-	if err != nil {
-		return err
-	}
-	DB = db
-
-	return nil
-}
-
-// GetDB connection
-func GetDB() *gorm.DB {
-	return DB
-}
-
-// GetDBError connection error
-func GetDBError() error {
-	return DBErr
+	return &GormDatabase{DB: db}, nil
 }
