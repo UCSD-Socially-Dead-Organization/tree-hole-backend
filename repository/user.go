@@ -13,7 +13,7 @@ type UserRepo interface {
 	Create(user *models.User) error
 	GetAll() ([]models.User, error)
 	GetOne(id uuid.UUID) (models.User, error)
-	Update(id uuid.UUID, user *models.User) error
+	Update(user *models.User) error
 }
 
 func NewUserRepo(gorm *database.GormDatabase) UserRepo {
@@ -52,8 +52,8 @@ func (u *userRepo) GetOne(id uuid.UUID) (models.User, error) {
 	return user, nil
 }
 
-func (u *userRepo) Update(id uuid.UUID, user *models.User) error {
-	if err := u.gorm.DB.Model(&models.User{}).Where("id = ?", id).Updates(user).Error; err != nil {
+func (u *userRepo) Update(user *models.User) error {
+	if err := u.gorm.DB.Model(&models.User{}).Where("id = ?", user.ID).Updates(user).Error; err != nil {
 		logger.Errorf("error: %v", err)
 		return err
 	}

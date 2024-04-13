@@ -112,6 +112,11 @@ func (u *userHandler) Update(ctx *gin.Context) {
 		ctx.Abort()
 		return
 	}
+	if id != req.Id {
+		ctx.JSON(http.StatusNotAcceptable, gin.H{"message": "ID in URL does not match ID in form"})
+		ctx.Abort()
+		return
+	}
 
 	user := models.User{
 		ID:         req.Id,
@@ -121,6 +126,6 @@ func (u *userHandler) Update(ctx *gin.Context) {
 		ProfilePic: req.ProfilePic,
 	}
 
-	u.repo.Update(id, &user)
+	u.repo.Update(&user)
 	ctx.JSON(http.StatusOK, &user)
 }

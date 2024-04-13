@@ -15,10 +15,12 @@ type Configuration struct {
 func SetupConfig() (*Configuration, error) {
 	var configuration *Configuration
 
-	// this will read the .env file and setup ALL the environment variables, we no longer need to read the environment variables manually
-	viper.SetConfigFile(".env")
+	// this will also read the config.env file and setup all the environment variables
+	// https://stackoverflow.com/questions/66683505/handling-viper-config-file-path-during-go-tests
+	viper.SetConfigName("config")
+	viper.AddConfigPath(".")
 	if err := viper.ReadInConfig(); err != nil {
-		logger.Errorf("Error to reading config file, %s", err)
+		logger.Errorf("Error reading config file, %s", err)
 		return nil, err
 	}
 
