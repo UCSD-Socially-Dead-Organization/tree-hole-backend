@@ -6,25 +6,29 @@ import (
 )
 
 type Configuration struct {
-	Server   ServerConfiguration
-	Database DatabaseConfiguration
+	// with squash, the fields of the embedded struct are treated
+	// as if they were part of the outer struct for the purposes of mapping keys to fields.
+	Server ServerConfiguration   `mapstructure:",squash"`
+	DB     DatabaseConfiguration `mapstructure:",squash"`
 }
 
-// SetupConfig configuration
-func SetupConfig() error {
+func SetupConfig() (*Configuration, error) {
 	var configuration *Configuration
 
-	viper.SetConfigFile(".env")
+	// this will also read the config.env file and setup all the environment variables
+	// https://stackoverflow.com/questions/66683505/handling-viper-config-file-path-during-go-tests
+	viper.SetConfigName("config")
+	viper.AddConfigPath(".")
 	if err := viper.ReadInConfig(); err != nil {
-		logger.Errorf("Error to reading config file, %s", err)
-		return err
+		logger.Errorf("Error reading config file, %s", err)
+		return nil, err
 	}
 
 	err := viper.Unmarshal(&configuration)
 	if err != nil {
 		logger.Errorf("error to decode, %v", err)
-		return err
+		return nil, err
 	}
 
-	return nil
+	return configuration, nil
 }
