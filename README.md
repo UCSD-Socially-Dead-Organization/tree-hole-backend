@@ -18,7 +18,7 @@ make clean
 
 先讀 config
 ```
-	conf, err := env.SetupConfig()
+conf, err := env.SetupConfig()
 ```
 
 用 config 建立 db connection
