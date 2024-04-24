@@ -3,10 +3,11 @@ module github.com/UCSD-Socially-Dead-Organization/tree-hole-backend
 go 1.20
 
 require (
+	github.com/auth0/go-jwt-middleware/v2 v2.2.1
 	github.com/gin-gonic/gin v1.9.1
 	github.com/sirupsen/logrus v1.4.2
 	github.com/spf13/viper v1.10.1
-	github.com/stretchr/testify v1.8.3
+	github.com/stretchr/testify v1.8.4
 	gorm.io/driver/postgres v1.3.1
 	gorm.io/gorm v1.23.8
 )
@@ -55,10 +56,12 @@ require (
 	golang.org/x/arch v0.3.0 // indirect
 	golang.org/x/crypto v0.22.0 // indirect
 	golang.org/x/net v0.24.0 // indirect
+	golang.org/x/sync v0.6.0 // indirect
 	golang.org/x/sys v0.19.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	google.golang.org/protobuf v1.30.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 // indirect
+	gopkg.in/go-jose/go-jose.v2 v2.6.2 // indirect
 	gopkg.in/ini.v1 v1.66.2 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
@@ -66,5 +69,6 @@ require (
 
 require (
 	github.com/google/uuid v1.6.0
+	github.com/gwatts/gin-adapter v1.0.0
 	github.com/jinzhu/now v1.1.5 // indirect
 )

@@ -3,16 +3,21 @@ package repository
 import (
 	"testing"
 
-	config "github.com/UCSD-Socially-Dead-Organization/tree-hole-backend/config"
+	"github.com/UCSD-Socially-Dead-Organization/tree-hole-backend/config"
 	"github.com/UCSD-Socially-Dead-Organization/tree-hole-backend/infra/database"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 )
 
+const (
+	configFileName = "config"
+	configPath     = "../"
+)
+
 func prepareDatabaseConnection(t *testing.T) *database.GormDatabase {
 	t.Helper()
-	viper.SetConfigName("config")
-	viper.AddConfigPath("../")
+	viper.SetConfigName(configFileName)
+	viper.AddConfigPath(configPath)
 	err := viper.ReadInConfig()
 	assert.NoError(t, err)
 

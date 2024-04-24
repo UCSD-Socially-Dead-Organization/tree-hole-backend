@@ -10,6 +10,7 @@ help:
 	@echo 'clean: clean for all clear docker images'
 
 init:
+	@ if [ -f config.env ]; then echo "config.env already exists!"; exit 1; fi
 	@ echo "Copy the config.env.example. to the real config.env file..."
 	@ cp config.env.example config.env
 	@ echo "Configuration done!"
@@ -30,6 +31,8 @@ stop:
 	docker-compose -f docker-compose-prod.yml down -v
 	docker-compose -f docker-compose-dev.yml down -v
 
+run:
+	go run main.go
 
 ## I think we can simply use docker to start some of our services, docker compose is abit over kill at this point since it kinda slow and
 ## I don't want to start the whole cluster just to test a single funciton.
