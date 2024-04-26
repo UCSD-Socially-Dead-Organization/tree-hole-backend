@@ -43,6 +43,7 @@ func Register(gorm *database.GormDatabase, conf *config.Configuration) *gin.Engi
 		// this is a health check endpoint which is protected by the auth0 middleware
 		v1AuthenticatedRouter.GET("/auth/health", func(ctx *gin.Context) { ctx.JSON(http.StatusOK, gin.H{"live": "ok"}) })
 		UsersRoutes(v1AuthenticatedRouter, repository.NewUserRepo(gorm))
+		MatchesRoutes(v1AuthenticatedRouter, repository.NewMatchRepo(gorm))
 	}
 
 	return router

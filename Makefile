@@ -34,6 +34,9 @@ stop:
 run:
 	go run main.go
 
+test:
+	go test -v ./...
+
 ## I think we can simply use docker to start some of our services, docker compose is abit over kill at this point since it kinda slow and
 ## I don't want to start the whole cluster just to test a single funciton.
 ## You can still use it though, but I will just add some docker commandsfor me here.
