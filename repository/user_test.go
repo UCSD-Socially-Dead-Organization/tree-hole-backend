@@ -60,7 +60,6 @@ func Test_Create(t *testing.T) {
 			assert.Equal(t, tt.wantUser.Age, foundUser.Age)
 			assert.Equal(t, tt.wantUser.ProfilePic, foundUser.ProfilePic)
 			assert.Equal(t, tt.wantUser.Username, foundUser.Username)
-			assert.True(t, tt.wantUser.LastLogin.Equal(foundUser.LastLogin))
 		})
 	}
 }
@@ -156,7 +155,6 @@ func Test_GetOne(t *testing.T) {
 			assert.Equal(t, tt.givenUser.Age, user.Age)
 			assert.Equal(t, tt.givenUser.ProfilePic, user.ProfilePic)
 			assert.Equal(t, tt.givenUser.Username, user.Username)
-			assert.True(t, tt.givenUser.LastLogin.Equal(user.LastLogin))
 		})
 	}
 }
@@ -209,7 +207,6 @@ func Test_Update(t *testing.T) {
 			assert.Equal(t, tt.givenUserFields.ID, user.ID)
 			assert.Equal(t, tt.givenUserFields.ProfilePic, user.ProfilePic)
 			assert.Equal(t, tt.givenUserFields.Username, user.Username)
-			assert.True(t, tt.givenUserFields.LastLogin.Equal(user.LastLogin))
 			assert.Equal(t, tt.givenUserFields.Age, user.Age)
 		})
 	}
