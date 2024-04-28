@@ -23,11 +23,23 @@ func MatchesRoutes(v1 *gin.RouterGroup, repo repository.MatchRepo) {
 type matchesResp struct {
 	Matches []matchResp `json:"matches"`
 }
+
 type matchResp struct {
 	ID        uuid.UUID `json:"id"`
-	User1     uuid.UUID `json:"user1"`
-	User2     uuid.UUID `json:"user2"`
+	User1     string    `json:"user1"`
+	User2     string    `json:"user2"`
 	CreatedAt time.Time `json:"created_at"`
+}
+
+type matchCreate struct {
+	User1 string `json:"user1" binding:"required"`
+	User2 string `json:"user2" binding:"required"`
+}
+
+type matchUpdate struct {
+	Id    uuid.UUID `json:"id" binding:"required"`
+	User1 string    `json:"user1"`
+	User2 string    `json:"user2"`
 }
 
 type matchHandler struct {
@@ -81,37 +93,31 @@ func (u *matchHandler) GetOne(ctx *gin.Context) {
 	})
 }
 
-type matchReq struct {
-	Id    uuid.UUID `json:"id"`
-	User1 uuid.UUID `json:"user1"`
-	User2 uuid.UUID `json:"user2"`
+func (u *matchHandler) Create(ctx *gin.Context) {
+	var req matchCreate
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusNotAcceptable, gin.H{"message": "Invalid form", "error": err.Error()})
+		ctx.Abort()
+		return
+	}
+
+	match := models.Match{
+		User1: req.User1,
+		User2: req.User2,
+	}
+	u.repo.Create(&match)
+
+	ctx.JSON(http.StatusCreated, &match)
 }
 
-func (u *matchHandler) Create(ctx *gin.Context) {
-	var req matchReq
+func (u *matchHandler) Update(ctx *gin.Context) {
+	var req matchUpdate
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusNotAcceptable, gin.H{"message": "Invalid form", "form": req})
 		ctx.Abort()
 		return
 	}
-	match := models.Match{
-		ID:    req.Id,
-		User1: req.User1,
-		User2: req.User2,
-	}
-	u.repo.Create(&match)
-	ctx.JSON(http.StatusCreated, &match)
-}
 
-func (u *matchHandler) Update(ctx *gin.Context) {
-	var err error
-	var req matchReq
-	err = ctx.ShouldBindJSON(&req)
-	if err != nil {
-		ctx.JSON(http.StatusNotAcceptable, gin.H{"message": "Invalid form", "form": req})
-		ctx.Abort()
-		return
-	}
 	id_str := ctx.Param("id")
 	id, err := uuid.Parse(id_str)
 	if err != nil {
