@@ -180,6 +180,7 @@ func Test_Update(t *testing.T) {
 	assert.NoError(t, err)
 
 	now := time.Now()
+	prev := now.Add(-time.Hour)
 	tests := []struct {
 		name            string
 		givenUserFields models.User
@@ -191,7 +192,7 @@ func Test_Update(t *testing.T) {
 				ID:         givenID,
 				ProfilePic: []byte("test"),
 				Username:   "Jinhua",
-				LastLogin:  now,
+				LastLogin:  prev,
 				Age:        30,
 				CreatedAt:  now,
 				UpdatedAt:  now,
@@ -208,6 +209,8 @@ func Test_Update(t *testing.T) {
 			assert.Equal(t, tt.givenUserFields.ProfilePic, user.ProfilePic)
 			assert.Equal(t, tt.givenUserFields.Username, user.Username)
 			assert.Equal(t, tt.givenUserFields.Age, user.Age)
+			assert.Equal(t, tt.givenUserFields.LastLogin.Format(time.RFC3339), user.LastLogin.Format(time.RFC3339))
+			// assert.Equal(t, tt.givenUserFields.LastLogin, user.LastLogin)
 		})
 	}
 

@@ -14,10 +14,10 @@ import (
 func MatchesRoutes(v1 *gin.RouterGroup, repo repository.MatchRepo) {
 	matchHandler := matchHandler{repo: repo}
 
-	v1.GET("/match", matchHandler.GetAll)
-	v1.POST("/match", matchHandler.Create)
-	v1.GET("/match/:id", matchHandler.GetOne)
-	v1.PUT("/match/:id", matchHandler.Update)
+	v1.GET("/matches", matchHandler.GetAll)
+	v1.POST("/matches", matchHandler.Create)
+	v1.GET("/matches/:id", matchHandler.GetOne)
+	v1.PUT("/matches/:id", matchHandler.Update)
 }
 
 type matchesResp struct {
