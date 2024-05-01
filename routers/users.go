@@ -1,6 +1,7 @@
 package routers
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
@@ -99,6 +100,13 @@ func (u *userHandler) GetOne(ctx *gin.Context) {
 	})
 }
 
+type userCreateReq struct {
+	Name      string `json:"username" binding:"required"`
+	Age       int    `json:"age"`
+	LastLogin string `json:"lastLogin"`
+	// LastLogin string `json:"lastLogin,omitempty" binding:"-"`
+}
+
 type userReq struct {
 	Id         uuid.UUID `json:"id"`
 	ProfilePic []byte    `json:"profile_pic"`
@@ -108,17 +116,27 @@ type userReq struct {
 }
 
 func (u *userHandler) Create(ctx *gin.Context) {
-	var req userReq
+	var req userCreateReq
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusNotAcceptable, gin.H{"message": "Invalid form", "form": req})
 		ctx.Abort()
 		return
 	}
+
+	// TODO: Fix parse time
+	fmt.Println("testing!")
+	fmt.Println(req.LastLogin)
+	lastLogin, err := time.Parse(time.RFC3339Nano, req.LastLogin)
+	if err != nil {
+		ctx.JSON(http.StatusNotAcceptable, gin.H{"message": "Invalid date format", "error": err.Error()})
+		ctx.Abort()
+		return
+	}
+
 	user := models.User{
-		ID:        req.Id,
 		Username:  req.Name,
 		Age:       req.Age,
-		LastLogin: req.LastLogin,
+		LastLogin: lastLogin,
 	}
 	u.repo.Create(&user)
 	ctx.JSON(http.StatusCreated, &user)

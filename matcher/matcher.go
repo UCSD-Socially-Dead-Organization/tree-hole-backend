@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"math/rand"
 	"net/http"
 	"os"
 	"time"
@@ -57,6 +58,24 @@ func Request(requestType string, url string, body []byte) (res *http.Response, e
 	}
 
 	return res, err
+}
+
+const charset = "abcdefghijklmnopqrstuvwxyz" +
+	"ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
+var seededRand *rand.Rand = rand.New(
+	rand.NewSource(time.Now().UnixNano()))
+
+func StringWithCharset(length int, charset string) string {
+	b := make([]byte, length)
+	for i := range b {
+		b[i] = charset[seededRand.Intn(len(charset))]
+	}
+	return string(b)
+}
+
+func GetRandString(length int) string {
+	return StringWithCharset(length, charset)
 }
 
 func GetActiveUsers() (users []User) {
@@ -131,8 +150,8 @@ func CreateMatch(user1 string, user2 string) {
 
 func CreateUser(username string) {
 	user := User{
-		Username: username,
-		// LastLogin: time.Now().String(),
+		Username:  username,
+		LastLogin: time.Now().Format(time.RFC3339Nano),
 	}
 
 	jsonBody, err := json.Marshal(user)
@@ -161,7 +180,11 @@ func CreateUser(username string) {
 }
 
 func main() {
+	// Create 10 fake users
 	CreateUser("abchajksdh@test.com")
+	for i := 0; i < 10; i++ {
+		CreateUser(GetRandString(10) + "@test.com")
+	}
 
 	// CreateMatch("abchajksdh@test.com", "defasdasd@test.com")
 
@@ -170,14 +193,14 @@ func main() {
 	// 	fmt.Printf("matches: %d: %s\n", i, v)
 	// }
 
-	// users := GetActiveUsers()
+	users := GetActiveUsers()
 
-	// rand.Shuffle(len(users), func(i, j int) { users[i], users[j] = users[j], users[i] })
-	// for i, v := range users {
-	// 	fmt.Printf("user: %d: %s\n", i, v)
-	// }
+	rand.Shuffle(len(users), func(i, j int) { users[i], users[j] = users[j], users[i] })
+	for i, v := range users {
+		fmt.Printf("user: %d: %s\n", i, v)
+	}
 
-	// for i := 0; i+1 < len(users); i += 2 {
-	// 	CreateMatch(users[i].Username, users[i+1].Username)
-	// }
+	for i := 0; i+1 < len(users); i += 2 {
+		CreateMatch(users[i].Username, users[i+1].Username)
+	}
 }
