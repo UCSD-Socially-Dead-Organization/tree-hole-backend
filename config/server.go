@@ -10,6 +10,10 @@ type ServerConfiguration struct {
 	Debug bool   `mapstructure:"DEBUG"`
 	// Secret string `mapsctructure:SECRET`" TODO: Add secret key
 	Allowed_Hosts string `mapstructure:"ALLOWED_HOSTS"`
+
+	// JWT Configuration for Auth0
+	JWTAudience string `mapstructure:"AUTH0_AUDIENCE"`
+	JWTDomain   string `mapstructure:"AUTH0_DOMAIN"`
 }
 
 func (s *ServerConfiguration) GenerateServerAddress() string {

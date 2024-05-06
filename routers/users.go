@@ -1,6 +1,7 @@
 package routers
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
@@ -13,18 +14,20 @@ import (
 func UsersRoutes(v1 *gin.RouterGroup, repo repository.UserRepo) {
 	userHandler := userHandler{repo: repo}
 
-	v1.GET("/user", userHandler.GetAll)
-	v1.POST("/user", userHandler.Create)
-	v1.GET("/user/:id", userHandler.GetOne)
-	v1.PUT("/user/:id", userHandler.Update)
+	v1.GET("/users", userHandler.GetAll)
+	v1.GET("/users/active", userHandler.GetActiveUsers)
+	v1.POST("/users", userHandler.Create)
+	v1.GET("/users/:id", userHandler.GetOne)
+	v1.PUT("/users/:id", userHandler.Update)
 }
 
 type usersResp struct {
 	Users []userResp `json:"users"`
 }
 type userResp struct {
-	ID   uuid.UUID `json:"id"`
-	Name string    `json:"username"`
+	ID        uuid.UUID `json:"id"`
+	Name      string    `json:"username"`
+	LastLogin time.Time `json:"lastLogin"`
 }
 
 type userHandler struct {
@@ -43,8 +46,30 @@ func (u *userHandler) GetAll(ctx *gin.Context) {
 	var resps []userResp
 	for _, res := range results {
 		resp := userResp{
-			ID:   res.ID,
-			Name: res.Username,
+			ID:        res.ID,
+			Name:      res.Username,
+			LastLogin: res.LastLogin,
+		}
+		resps = append(resps, resp)
+	}
+	ctx.JSON(http.StatusOK, &usersResp{Users: resps})
+}
+
+func (u *userHandler) GetActiveUsers(ctx *gin.Context) {
+	var err error
+	var results []models.User
+	results, err = u.repo.GetActiveUsers()
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"message": "Internal Server Error"})
+		ctx.Abort()
+		return
+	}
+	var resps []userResp
+	for _, res := range results {
+		resp := userResp{
+			ID:        res.ID,
+			Name:      res.Username,
+			LastLogin: res.LastLogin,
 		}
 		resps = append(resps, resp)
 	}
@@ -68,7 +93,18 @@ func (u *userHandler) GetOne(ctx *gin.Context) {
 		ctx.Abort()
 		return
 	}
-	ctx.JSON(http.StatusOK, &userResp{ID: result.ID, Name: result.Username})
+	ctx.JSON(http.StatusOK, &userResp{
+		ID:        result.ID,
+		Name:      result.Username,
+		LastLogin: result.LastLogin,
+	})
+}
+
+type userCreateReq struct {
+	Name      string `json:"username" binding:"required"`
+	Age       int    `json:"age"`
+	LastLogin string `json:"lastLogin"`
+	// LastLogin string `json:"lastLogin,omitempty" binding:"-"`
 }
 
 type userReq struct {
@@ -76,21 +112,31 @@ type userReq struct {
 	ProfilePic []byte    `json:"profile_pic"`
 	Name       string    `json:"username"`
 	Age        int       `json:"age"`
-	LastLogin  time.Time `json:"last_login"`
+	LastLogin  time.Time `json:"lastLogin"`
 }
 
 func (u *userHandler) Create(ctx *gin.Context) {
-	var req userReq
+	var req userCreateReq
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusNotAcceptable, gin.H{"message": "Invalid form", "form": req})
 		ctx.Abort()
 		return
 	}
+
+	// TODO: Fix parse time
+	fmt.Println("testing!")
+	fmt.Println(req.LastLogin)
+	lastLogin, err := time.Parse(time.RFC3339Nano, req.LastLogin)
+	if err != nil {
+		ctx.JSON(http.StatusNotAcceptable, gin.H{"message": "Invalid date format", "error": err.Error()})
+		ctx.Abort()
+		return
+	}
+
 	user := models.User{
-		ID:        req.Id,
 		Username:  req.Name,
 		Age:       req.Age,
-		LastLogin: req.LastLogin,
+		LastLogin: lastLogin,
 	}
 	u.repo.Create(&user)
 	ctx.JSON(http.StatusCreated, &user)

@@ -3,11 +3,13 @@ package routers
 import (
 	"net/http"
 
+	"github.com/UCSD-Socially-Dead-Organization/tree-hole-backend/auth0"
 	config "github.com/UCSD-Socially-Dead-Organization/tree-hole-backend/config"
 	"github.com/UCSD-Socially-Dead-Organization/tree-hole-backend/infra/database"
 	"github.com/UCSD-Socially-Dead-Organization/tree-hole-backend/repository"
 	"github.com/UCSD-Socially-Dead-Organization/tree-hole-backend/routers/middleware"
 	"github.com/gin-gonic/gin"
+	adapter "github.com/gwatts/gin-adapter"
 )
 
 func Register(gorm *database.GormDatabase, conf *config.Configuration) *gin.Engine {
@@ -29,12 +31,19 @@ func Register(gorm *database.GormDatabase, conf *config.Configuration) *gin.Engi
 	router.NoRoute(func(ctx *gin.Context) {
 		ctx.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "Route Not Found"})
 	})
-	router.GET("/health", func(ctx *gin.Context) { ctx.JSON(http.StatusOK, gin.H{"live": "ok"}) })
 
-	// Set up the routes
 	v1 := router.Group("/v1")
+
+	v1NonAuthenticatedRouter := v1.Group("/")
+	v1NonAuthenticatedRouter.GET("/health", func(ctx *gin.Context) { ctx.JSON(http.StatusOK, gin.H{"live": "ok"}) })
+
+	authenticate := adapter.Wrap(auth0.EnsureValidToken().CheckJWT)
+	v1AuthenticatedRouter := v1.Group("/", authenticate)
 	{
-		UsersRoutes(v1, repository.NewUserRepo(gorm))
+		// this is a health check endpoint which is protected by the auth0 middleware
+		v1AuthenticatedRouter.GET("/auth/health", func(ctx *gin.Context) { ctx.JSON(http.StatusOK, gin.H{"live": "ok"}) })
+		UsersRoutes(v1AuthenticatedRouter, repository.NewUserRepo(gorm))
+		MatchesRoutes(v1AuthenticatedRouter, repository.NewMatchRepo(gorm))
 	}
 
 	return router

@@ -46,3 +46,6 @@ Jonathan Jiang: Grad school student from SJSU </br>
 陳金華: Frontend tech lead </br>
 ### Reference docs
 https://auth0.com/docs/quickstart/webapp/golang/interactive#install-dependencies
+
+--- Our API authentication flow
+https://auth0.com/docs/get-started/authentication-and-authorization-flow/client-credentials-flow/call-your-api-using-the-client-credentials-flow#prerequisites

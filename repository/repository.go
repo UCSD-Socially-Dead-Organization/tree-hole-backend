@@ -22,6 +22,7 @@ func InitDB(gorm *database.GormDatabase) error {
 
 	// I dont think we need a separate file for migrations. We can just put the migrations in the SetUpDB function.
 	err = db.AutoMigrate(&models.User{})
+	err = db.AutoMigrate(&models.Match{})
 
 	if err != nil {
 		return err

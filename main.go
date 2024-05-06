@@ -12,18 +12,18 @@ import (
 )
 
 func main() {
-	//set timezone. Default is Asia/Taipei Might need to change this to UTC
+	//set timezone. Default is Asia/Taipei. TODO: Might need to change this to UTC
 	viper.SetDefault("SERVER_TIMEZONE", "Asia/Taipei")
 	loc, _ := time.LoadLocation(viper.GetString("SERVER_TIMEZONE"))
 	time.Local = loc
 
 	var err error
 	var conf *env.Configuration
-
 	// SetupConfig() will read the .env file and setup ALL the environment variables
 	if conf, err = env.SetupConfig(); err != nil {
 		logger.Fatalf("config SetupConfig() error: %s", err)
 	}
+
 	var gorm *database.GormDatabase
 	if gorm, err = database.DBConnection(conf.DB.GetDSN(), conf); err != nil {
 		logger.Fatalf("database DbConnection error: %s", err)
